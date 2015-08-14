@@ -33,6 +33,9 @@ int gMyMarker2 = 21;
 string basedir_CT10 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/EPS09/";
 string basedir_EPS09 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/EPS09/";
 string basedir_DSSZ = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/DSSZ_moreiter2/";
+TString text_CT10 = "CT10";
+TString text_EPS09 = "CT10+EPS09";
+TString text_DSSZ = "CT10+DSSZ";
 bool doEPS09 = true;
 bool doDSSZ = true;
 
@@ -745,9 +748,9 @@ void plot_graph_1file(const char* fname="graph.root", const char *gbasename="gyi
       // }
       // else
       // {
-      tleg2->AddEntry(gth_cteq,"CT10","lf");
-      if (doEPS09) tleg2->AddEntry(gth_eps,"CT10+EPS09","lf");
-      if (doDSSZ) tleg2->AddEntry(gth_dssz,"CT10+DSSZ","lf");
+      tleg2->AddEntry(gth_cteq,text_CT10,"lf");
+      if (doEPS09) tleg2->AddEntry(gth_eps,text_EPS09,"lf");
+      if (doDSSZ) tleg2->AddEntry(gth_dssz,text_DSSZ,"lf");
       // }
    }
    if (doAlice && !theory_only) tleg2->AddEntry(galice_syst,"ALICE data", "p");
