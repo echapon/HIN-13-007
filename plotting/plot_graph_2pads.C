@@ -30,11 +30,11 @@ int gMyMarker = 22;
 int gMyMarker1 = 20;
 int gMyMarker2 = 21;
 
-string basedir_CT10 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/EPS09";
-string basedir_EPS09 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/EPS09";
-string basedir_DSSZ = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/DSSZ_moreiter2";
+string basedir_CT10 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/EPS09/";
+string basedir_EPS09 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/EPS09/";
+string basedir_DSSZ = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/DSSZ_moreiter2/";
 bool doEPS09 = true;
-bool doDSSZ = false;
+bool doDSSZ = true;
 
 bool doAlice = false;
 
@@ -261,7 +261,8 @@ TGraphAsymmErrors* theory_errors(const char* gbasename, int channel_number, int 
    if (string(pdfname) == "EPS09") basedir = basedir_EPS09;
    else if (string(pdfname) == "DSSZ") basedir = basedir_DSSZ;
    else basedir = basedir_CT10;
-   string filename = string(label) + string("_") + string(channel) + ext;
+   string filename = string(basedir) + string(label) + string("_") + string(channel) + ext;
+   cout << filename << endl;
    ifstream file(filename.c_str());
 
    double dummy;
