@@ -850,21 +850,43 @@ void plot_graph_1file(const char* fname="graph.root", const char *gbasename="gyi
       setErrorY(gratio_ct10err2,0);
       gratio_ct10err2->Draw("Z");
 
-      TGraphAsymmErrors *gth_eps_noct10err = theory_errors(gbasename, twochan ? 1 : channel_number, nbins, "EPS09",false);
-      if (!twochan) scaleY(gth_eps_noct10err,scale);
-      revertX(gth_eps_noct10err);
-      TGraphErrors *gratio_eps = divideGraphs(convert(gth_eps_noct10err), convert(gth_cteq));
-      for (int i=0; i<gratio_eps->GetN(); i++) cout << gratio_eps->GetX()[i] << " " << gratio_eps->GetY()[i] << "+-" << gratio_eps->GetEY()[i] << endl;
-      gratio_eps->SetLineColor(gColorEPS09);
-      gratio_eps->SetLineStyle(7);
-      gratio_eps->SetLineWidth(4);
-      gratio_eps->SetFillColor(gColorEPS09);
-      gratio_eps->SetFillStyle(3375);
-      gratio_eps->Draw("2");
+      if (doEPS09)
+      {
+         TGraphAsymmErrors *gth_eps_noct10err = theory_errors(gbasename, twochan ? 1 : channel_number, nbins, "EPS09",false);
+         if (!twochan) scaleY(gth_eps_noct10err,scale);
+         revertX(gth_eps_noct10err);
+         TGraphErrors *gratio_eps = divideGraphs(convert(gth_eps_noct10err), convert(gth_cteq));
+         for (int i=0; i<gratio_eps->GetN(); i++) cout << gratio_eps->GetX()[i] << " " << gratio_eps->GetY()[i] << "+-" << gratio_eps->GetEY()[i] << endl;
+         gratio_eps->SetLineColor(gColorEPS09);
+         gratio_eps->SetLineStyle(7);
+         gratio_eps->SetLineWidth(4);
+         gratio_eps->SetFillColor(gColorEPS09);
+         gratio_eps->SetFillStyle(3375);
+         gratio_eps->Draw("2");
 
-      TGraphErrors *gratio_eps2 = new TGraphErrors(*gratio_eps);
-      setErrorY(gratio_eps2,0);
-      gratio_eps2->Draw("Z");
+         TGraphErrors *gratio_eps2 = new TGraphErrors(*gratio_eps);
+         setErrorY(gratio_eps2,0);
+         gratio_eps2->Draw("Z");
+      }
+
+      if (doDSSZ)
+      {
+         TGraphAsymmErrors *gth_dssz_noct10err = theory_errors(gbasename, twochan ? 1 : channel_number, nbins, "DSSZ",false);
+         if (!twochan) scaleY(gth_dssz_noct10err,scale);
+         revertX(gth_dssz_noct10err);
+         TGraphErrors *gratio_dssz = divideGraphs(convert(gth_dssz_noct10err), convert(gth_cteq));
+         for (int i=0; i<gratio_dssz->GetN(); i++) cout << gratio_dssz->GetX()[i] << " " << gratio_dssz->GetY()[i] << "+-" << gratio_dssz->GetEY()[i] << endl;
+         gratio_dssz->SetLineColor(gColorDSSZ);
+         gratio_dssz->SetLineStyle(7);
+         gratio_dssz->SetLineWidth(4);
+         gratio_dssz->SetFillColor(gColorDSSZ);
+         gratio_dssz->SetFillStyle(3375);
+         gratio_dssz->Draw("2");
+
+         TGraphErrors *gratio_dssz2 = new TGraphErrors(*gratio_dssz);
+         setErrorY(gratio_dssz2,0);
+         gratio_dssz2->Draw("Z");
+      }
 
       gratio_syst->Draw("||");
       gratio_stat->Draw("PZ");
