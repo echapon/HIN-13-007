@@ -25,9 +25,16 @@ EColor gMyColor2 = kBlue;
 EColor gColorCT10 = kRed;
 EColor gColorCT10_fill = kYellow;
 int gColorEPS09 = kGreen+2;
+int gColorDSSZ = kBlue+2;
 int gMyMarker = 22;
 int gMyMarker1 = 20;
 int gMyMarker2 = 21;
+
+string basedir_CT10 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/EPS09";
+string basedir_EPS09 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/EPS09";
+string basedir_DSSZ = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/DSSZ_moreiter2";
+bool doEPS09 = true;
+bool doDSSZ = false;
 
 bool doAlice = false;
 
@@ -250,6 +257,10 @@ TGraphAsymmErrors* theory_errors(const char* gbasename, int channel_number, int 
 
    string ext = (nbins==10||nbins==5) ? string(".dta") : string("_4bins.dta");
 
+   string basedir;
+   if (string(pdfname) == "EPS09") basedir = basedir_EPS09;
+   else if (string(pdfname) == "DSSZ") basedir = basedir_DSSZ;
+   else basedir = basedir_CT10;
    string filename = string(label) + string("_") + string(channel) + ext;
    ifstream file(filename.c_str());
 
@@ -526,6 +537,7 @@ void plot_graph_1file(const char* fname="graph.root", const char *gbasename="gyi
    int nbins = gexp_stat1->GetN();
    TGraphAsymmErrors *gth_cteq = theory_errors(gbasename, twochan ? 1 : channel_number, nbins, "CT10");
    TGraphAsymmErrors *gth_eps = theory_errors(gbasename, twochan ? 1 : channel_number, nbins, "EPS09");
+   TGraphAsymmErrors *gth_dssz = theory_errors(gbasename, twochan ? 1 : channel_number, nbins, "DSSZ");
    // TGraphAsymmErrors *gth_cteq = theory_errors(gbasename, twochan ? 1 : channel_number, 12, "CT10");
    // TGraphAsymmErrors *gth_eps = theory_errors(gbasename, twochan ? 1 : channel_number, 12, "EPS09");
    TGraphErrors *galice_th = (string(gbasename)=="gyieldsp") ? theory_alice_plus() : theory_alice_minus();
@@ -541,6 +553,7 @@ void plot_graph_1file(const char* fname="graph.root", const char *gbasename="gyi
       }
       revertX(gth_cteq);
       revertX(gth_eps);
+      revertX(gth_dssz);
       revertX(galice_stat);
       revertX(galice_syst);
       revertX(galice_th);
@@ -569,6 +582,7 @@ void plot_graph_1file(const char* fname="graph.root", const char *gbasename="gyi
    {
       scaleY(gth_cteq,scale);
       scaleY(gth_eps,scale);
+      scaleY(gth_dssz,scale);
    }
    scaleY(galice_stat,scale);
    scaleY(galice_syst,scale);
@@ -608,16 +622,34 @@ void plot_graph_1file(const char* fname="graph.root", const char *gbasename="gyi
    setErrorY(gth_cteq2,0);
    gth_cteq2->Draw("Z");
 
-   gth_eps->SetLineColor(gColorEPS09);
-   gth_eps->SetLineStyle(7);
-   gth_eps->SetLineWidth(4);
-   gth_eps->SetFillColor(gColorEPS09);
-   gth_eps->SetFillStyle(3375);
-   // gth_eps->Draw("L3");
-   gth_eps->Draw("2");
-   TGraphAsymmErrors *gth_eps2 = new TGraphAsymmErrors(*gth_eps);
-   setErrorY(gth_eps2,0);
-   gth_eps2->Draw("Z");
+   TGraphAsymmErrors *gth_eps2, *gth_dssz2;
+   if (doEPS09)
+   {
+      gth_eps->SetLineColor(gColorEPS09);
+      gth_eps->SetLineStyle(7);
+      gth_eps->SetLineWidth(4);
+      gth_eps->SetFillColor(gColorEPS09);
+      gth_eps->SetFillStyle(3375);
+      // gth_eps->Draw("L3");
+      gth_eps->Draw("2");
+      TGraphAsymmErrors *gth_eps2 = new TGraphAsymmErrors(*gth_eps);
+      setErrorY(gth_eps2,0);
+      gth_eps2->Draw("Z");
+   }
+
+   if (doDSSZ)
+   {
+      gth_dssz->SetLineColor(gColorDSSZ);
+      gth_dssz->SetLineStyle(7);
+      gth_dssz->SetLineWidth(4);
+      gth_dssz->SetFillColor(gColorDSSZ);
+      gth_dssz->SetFillStyle(3375);
+      // gth_dssz->Draw("L3");
+      gth_dssz->Draw("2");
+      TGraphAsymmErrors *gth_dssz2 = new TGraphAsymmErrors(*gth_dssz);
+      setErrorY(gth_dssz2,0);
+      gth_dssz2->Draw("Z");
+   }
 
    if (doAlice)
    {
@@ -713,7 +745,8 @@ void plot_graph_1file(const char* fname="graph.root", const char *gbasename="gyi
       // else
       // {
       tleg2->AddEntry(gth_cteq,"CT10","lf");
-      tleg2->AddEntry(gth_eps,"CT10+EPS09","lf");
+      if (doEPS09) tleg2->AddEntry(gth_eps,"CT10+EPS09","lf");
+      if (doDSSZ) tleg2->AddEntry(gth_dssz,"CT10+DSSZ","lf");
       // }
    }
    if (doAlice && !theory_only) tleg2->AddEntry(galice_syst,"ALICE data", "p");
