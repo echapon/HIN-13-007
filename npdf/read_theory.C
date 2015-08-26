@@ -4,8 +4,8 @@
 #include <math.h>
 #include <string>
 
-#define NSET_CT10 26
-#define NSET_EPS09 25 // 15 for EPS09, 25 for DSSZ
+#define NSET_CT10 20 // 20 for MSTW, 26 for CT10
+#define NSET_EPS09 15 // 15 for EPS09, 25 for DSSZ
 #define NSET_SCALES 3
 #define nbins 10
 #define LUMINOSITY 1

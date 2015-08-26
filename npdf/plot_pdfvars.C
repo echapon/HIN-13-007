@@ -1,8 +1,8 @@
 #include <fstream>
 #include "TH1F.h"
 
-#define N_CT10 52
-#define N_DSSZ 50
+#define N_CT10 40 // 52 for CT10, 40 for MSTW
+#define N_DSSZ 50 // 50 for DSSZ, 30 for EPS09
 
 
 const double scale = 1./34.62;

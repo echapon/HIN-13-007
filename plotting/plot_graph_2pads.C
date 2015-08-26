@@ -25,17 +25,21 @@ EColor gMyColor2 = kBlue;
 EColor gColorCT10 = kRed;
 EColor gColorCT10_fill = kYellow;
 int gColorEPS09 = kGreen+2;
+int gLineStyleEPS09 = 7;
+int gFillStyleEPS09 = 3375;
 int gColorDSSZ = kBlue+2;
+int gLineStyleDSSZ = 7;
+int gFillStyleDSSZ = 3357;
 int gMyMarker = 22;
 int gMyMarker1 = 20;
 int gMyMarker2 = 21;
 
-string basedir_CT10 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/EPS09/";
-string basedir_EPS09 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/EPS09/";
-string basedir_DSSZ = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/DSSZ_moreiter2/";
-TString text_CT10 = "CT10";
-TString text_EPS09 = "CT10+EPS09";
-TString text_DSSZ = "CT10+DSSZ";
+string basedir_CT10 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/MSTW_EPS09/";
+string basedir_EPS09 = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/MSTW_EPS09/";
+string basedir_DSSZ = "/home/emilien/Documents/Postdoc_LLR/anaW/analysis/stat/git/npdf/MSTW_DSSZ/";
+TString text_CT10 = "MSTW";
+TString text_EPS09 = "MSTW+EPS09";
+TString text_DSSZ = "MSTW+DSSZ";
 bool doEPS09 = true;
 bool doDSSZ = true;
 
@@ -607,7 +611,7 @@ void plot_graph_1file(const char* fname="graph.root", const char *gbasename="gyi
    gth_cteq->SetLineWidth(4);
    gth_cteq->SetFillColor(gColorCT10_fill);
    // gth_cteq->SetFillStyle(3002);
-   gth_cteq->SetFillStyle(1001);
+   gth_cteq->SetFillStyle(1001); 
    // gth_cteq->Draw("AL3");
    gth_cteq->Draw("A2");
    gth_cteq->GetXaxis()->SetLimits(xmin,xmax);
@@ -630,10 +634,10 @@ void plot_graph_1file(const char* fname="graph.root", const char *gbasename="gyi
    if (doEPS09)
    {
       gth_eps->SetLineColor(gColorEPS09);
-      gth_eps->SetLineStyle(7);
+      gth_eps->SetLineStyle(gLineStyleEPS09); // 7
       gth_eps->SetLineWidth(4);
       gth_eps->SetFillColor(gColorEPS09);
-      gth_eps->SetFillStyle(3375);
+      gth_eps->SetFillStyle(gFillStyleEPS09); // 3375
       // gth_eps->Draw("L3");
       gth_eps->Draw("2");
       TGraphAsymmErrors *gth_eps2 = new TGraphAsymmErrors(*gth_eps);
@@ -644,10 +648,10 @@ void plot_graph_1file(const char* fname="graph.root", const char *gbasename="gyi
    if (doDSSZ)
    {
       gth_dssz->SetLineColor(gColorDSSZ);
-      gth_dssz->SetLineStyle(7);
+      gth_dssz->SetLineStyle(gLineStyleDSSZ); // 7
       gth_dssz->SetLineWidth(4);
       gth_dssz->SetFillColor(gColorDSSZ);
-      gth_dssz->SetFillStyle(3375);
+      gth_dssz->SetFillStyle(gFillStyleDSSZ); // 3375
       // gth_dssz->Draw("L3");
       gth_dssz->Draw("2");
       TGraphAsymmErrors *gth_dssz2 = new TGraphAsymmErrors(*gth_dssz);
