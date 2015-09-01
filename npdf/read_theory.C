@@ -3,12 +3,17 @@
 #include <algorithm>
 #include <math.h>
 #include <string>
+#include <vector>
+#include <cmath>
 
-#define NSET_CT10 20 // 20 for MSTW, 26 for CT10
+#define NSET_CT10 50 // 20 for MSTW, 26 for CT10, 50 for NNPDF
 #define NSET_EPS09 15 // 15 for EPS09, 25 for DSSZ
 #define NSET_SCALES 3
 #define nbins 10
 #define LUMINOSITY 1
+
+const bool symmetrized = false; // set to true to get symmetric uncertainties
+const bool isnnpdf = true; // set to true if the proton PDF is NNPDF this changes how PDF uncertainties are computed
 
 using namespace std;
 
@@ -20,8 +25,9 @@ double A3(double wp_fwd, double wp_bwd, double wm_fwd, double wm_bwd, double tot
 double A4(double wp_fwd, double wp_bwd, double wm_fwd, double wm_bwd, double tot);
 double xsecwp(double wp_fwd, double wp_bwd, double wm_fwd, double wm_bwd, double tot);
 double xsecwm(double wp_fwd, double wp_bwd, double wm_fwd, double wm_bwd, double tot);
+double ok(double arg);
 
-void GetErr(double (*f)(double, double, double, double, double),int ibin, int nset, double *x0, double **xp, double **xm, double & x, double & xupper, double & xlower);
+void GetErr(double (*f)(double, double, double, double, double),int ibin, int nset, double *x0, double **xp, double **xm, double & x, double & xupper, double & xlower, bool nnpdf=false);
 int bin(int cmsbin);
 int bin(int cmsbin,string wpm);
 double sigtot(double *x);
@@ -169,87 +175,87 @@ int main(int argc, const char** argv)
 // Computes various observables for all bins
 	for (int ibin=-nbins/2; ibin<=-1; ibin++) // also negative bins for charge asymmetry
 	{
-		GetErr(xsecwp,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac);	
+		GetErr(xsecwp,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac,isnnpdf);	
 		GetErr(xsecwp,ibin,NSET_CT10,yields0nuc,yieldsp_ct10,yieldsm_ct10,A_ct10,A_upper_ct10,A_lower_ct10);	
 		GetErr(xsecwp,ibin,NSET_EPS09,yields0nuc,yieldsp_eps09,yieldsm_eps09,A_eps09,A_upper_eps09,A_lower_eps09);	
 		GetErr(xsecwp,ibin,NSET_SCALES,yields0,yieldsp_scales,yieldsm_scales,A_scales,A_upper_scales,A_lower_scales);	
-		filexswp << ibin << " " << etaavg[bin(ibin)]<< " " << A_vac << " " << A_upper_vac << " " << A_lower_vac << " " << A_ct10 << " " << A_upper_ct10 << " " << A_lower_ct10 << " ";
-		filexswp << A_upper_eps09 << " " << A_lower_eps09 << " " ;
-		filexswp << A_upper_scales << " " << A_lower_scales << endl;
+		filexswp << ibin << " " << etaavg[bin(ibin)]<< " " << ok(A_vac) << " " << ok(A_upper_vac) << " " << ok(A_lower_vac) << " " << ok(A_ct10) << " " << ok(A_upper_ct10) << " " << ok(A_lower_ct10) << " ";
+		filexswp << ok(A_upper_eps09) << " " << ok(A_lower_eps09) << " " ;
+		filexswp << ok(A_upper_scales) << " " << ok(A_lower_scales) << endl;
 
-		GetErr(xsecwm,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac);	
+		GetErr(xsecwm,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac,isnnpdf);	
 		GetErr(xsecwm,ibin,NSET_CT10,yields0nuc,yieldsp_ct10,yieldsm_ct10,A_ct10,A_upper_ct10,A_lower_ct10);	
 		GetErr(xsecwm,ibin,NSET_EPS09,yields0nuc,yieldsp_eps09,yieldsm_eps09,A_eps09,A_upper_eps09,A_lower_eps09);	
 		GetErr(xsecwm,ibin,NSET_SCALES,yields0,yieldsp_scales,yieldsm_scales,A_scales,A_upper_scales,A_lower_scales);	
-		filexswm << ibin << " " << etaavg[bin(ibin)]<< " " << A_vac << " " << A_upper_vac << " " << A_lower_vac << " " << A_ct10 << " " << A_upper_ct10 << " " << A_lower_ct10 << " ";
-		filexswm << A_upper_eps09 << " " << A_lower_eps09 << " " ;
-		filexswm << A_upper_scales << " " << A_lower_scales << endl;
+		filexswm << ibin << " " << etaavg[bin(ibin)]<< " " << ok(A_vac) << " " << ok(A_upper_vac) << " " << ok(A_lower_vac) << " " << ok(A_ct10) << " " << ok(A_upper_ct10) << " " << ok(A_lower_ct10) << " ";
+		filexswm << ok(A_upper_eps09) << " " << ok(A_lower_eps09) << " " ;
+		filexswm << ok(A_upper_scales) << " " << ok(A_lower_scales) << endl;
 
-		GetErr(CA,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac);	
+		GetErr(CA,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac,isnnpdf);	
 		GetErr(CA,ibin,NSET_CT10,yields0nuc,yieldsp_ct10,yieldsm_ct10,A_ct10,A_upper_ct10,A_lower_ct10);	
 		GetErr(CA,ibin,NSET_EPS09,yields0nuc,yieldsp_eps09,yieldsm_eps09,A_eps09,A_upper_eps09,A_lower_eps09);	
 		GetErr(CA,ibin,NSET_SCALES,yields0,yieldsp_scales,yieldsm_scales,A_scales,A_upper_scales,A_lower_scales);	
-		fileCA << ibin << " " << etaavg[bin(ibin)]<< " " << A_vac << " " << A_upper_vac << " " << A_lower_vac << " " << A_ct10 << " " << A_upper_ct10 << " " << A_lower_ct10 << " ";
-		fileCA << A_upper_eps09 << " " << A_lower_eps09 << " " ;
-		fileCA << A_upper_scales << " " << A_lower_scales << endl;
+		fileCA << ibin << " " << etaavg[bin(ibin)]<< " " << ok(A_vac) << " " << ok(A_upper_vac) << " " << ok(A_lower_vac) << " " << ok(A_ct10) << " " << ok(A_upper_ct10) << " " << ok(A_lower_ct10) << " ";
+		fileCA << ok(A_upper_eps09) << " " << ok(A_lower_eps09) << " " ;
+		fileCA << ok(A_upper_scales) << " " << ok(A_lower_scales) << endl;
 	}
    for (int ibin=1; ibin<=nbins/2; ibin++)
 	{
-		GetErr(xsecwp,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac);	
+		GetErr(xsecwp,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac,isnnpdf);	
 		GetErr(xsecwp,ibin,NSET_CT10,yields0nuc,yieldsp_ct10,yieldsm_ct10,A_ct10,A_upper_ct10,A_lower_ct10);	
 		GetErr(xsecwp,ibin,NSET_EPS09,yields0nuc,yieldsp_eps09,yieldsm_eps09,A_eps09,A_upper_eps09,A_lower_eps09);	
 		GetErr(xsecwp,ibin,NSET_SCALES,yields0,yieldsp_scales,yieldsm_scales,A_scales,A_upper_scales,A_lower_scales);	
-		filexswp << ibin << " " << etaavg[bin(ibin)]<< " " << A_vac << " " << A_upper_vac << " " << A_lower_vac << " " << A_ct10 << " " << A_upper_ct10 << " " << A_lower_ct10 << " ";
-		filexswp << A_upper_eps09 << " " << A_lower_eps09 << " " ;
-		filexswp << A_upper_scales << " " << A_lower_scales << endl;
+		filexswp << ibin << " " << etaavg[bin(ibin)]<< " " << ok(A_vac) << " " << ok(A_upper_vac) << " " << ok(A_lower_vac) << " " << ok(A_ct10) << " " << ok(A_upper_ct10) << " " << ok(A_lower_ct10) << " ";
+		filexswp << ok(A_upper_eps09) << " " << ok(A_lower_eps09) << " " ;
+		filexswp << ok(A_upper_scales) << " " << ok(A_lower_scales) << endl;
 
-		GetErr(xsecwm,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac);	
+		GetErr(xsecwm,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac,isnnpdf);	
 		GetErr(xsecwm,ibin,NSET_CT10,yields0nuc,yieldsp_ct10,yieldsm_ct10,A_ct10,A_upper_ct10,A_lower_ct10);	
 		GetErr(xsecwm,ibin,NSET_EPS09,yields0nuc,yieldsp_eps09,yieldsm_eps09,A_eps09,A_upper_eps09,A_lower_eps09);	
 		GetErr(xsecwm,ibin,NSET_SCALES,yields0,yieldsp_scales,yieldsm_scales,A_scales,A_upper_scales,A_lower_scales);	
-		filexswm << ibin << " " << etaavg[bin(ibin)]<< " " << A_vac << " " << A_upper_vac << " " << A_lower_vac << " " << A_ct10 << " " << A_upper_ct10 << " " << A_lower_ct10 << " ";
-		filexswm << A_upper_eps09 << " " << A_lower_eps09 << " " ;
-		filexswm << A_upper_scales << " " << A_lower_scales << endl;
+		filexswm << ibin << " " << etaavg[bin(ibin)]<< " " << ok(A_vac) << " " << ok(A_upper_vac) << " " << ok(A_lower_vac) << " " << ok(A_ct10) << " " << ok(A_upper_ct10) << " " << ok(A_lower_ct10) << " ";
+		filexswm << ok(A_upper_eps09) << " " << ok(A_lower_eps09) << " " ;
+		filexswm << ok(A_upper_scales) << " " << ok(A_lower_scales) << endl;
 
-		GetErr(CA,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac);	
+		GetErr(CA,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac,isnnpdf);	
 		GetErr(CA,ibin,NSET_CT10,yields0nuc,yieldsp_ct10,yieldsm_ct10,A_ct10,A_upper_ct10,A_lower_ct10);	
 		GetErr(CA,ibin,NSET_EPS09,yields0nuc,yieldsp_eps09,yieldsm_eps09,A_eps09,A_upper_eps09,A_lower_eps09);	
 		GetErr(CA,ibin,NSET_SCALES,yields0,yieldsp_scales,yieldsm_scales,A_scales,A_upper_scales,A_lower_scales);	
-		fileCA << ibin << " " << etaavg[bin(ibin)]<< " " << A_vac << " " << A_upper_vac << " " << A_lower_vac << " " << A_ct10 << " " << A_upper_ct10 << " " << A_lower_ct10 << " ";
-		fileCA << A_upper_eps09 << " " << A_lower_eps09 << " " ;
-		fileCA << A_upper_scales << " " << A_lower_scales << endl;	
+		fileCA << ibin << " " << etaavg[bin(ibin)]<< " " << ok(A_vac) << " " << ok(A_upper_vac) << " " << ok(A_lower_vac) << " " << ok(A_ct10) << " " << ok(A_upper_ct10) << " " << ok(A_lower_ct10) << " ";
+		fileCA << ok(A_upper_eps09) << " " << ok(A_lower_eps09) << " " ;
+		fileCA << ok(A_upper_scales) << " " << ok(A_lower_scales) << endl;	
 
-		GetErr(A1p,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac);	
+		GetErr(A1p,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac,isnnpdf);	
 		GetErr(A1p,ibin,NSET_CT10,yields0nuc,yieldsp_ct10,yieldsm_ct10,A_ct10,A_upper_ct10,A_lower_ct10);	
 		GetErr(A1p,ibin,NSET_EPS09,yields0nuc,yieldsp_eps09,yieldsm_eps09,A_eps09,A_upper_eps09,A_lower_eps09);	
 		GetErr(A1p,ibin,NSET_SCALES,yields0,yieldsp_scales,yieldsm_scales,A_scales,A_upper_scales,A_lower_scales);	
-		fileA1p << ibin << " " << etaavg[bin(ibin)]<< " " << A_vac << " " << A_upper_vac << " " << A_lower_vac << " " << A_ct10 << " " << A_upper_ct10 << " " << A_lower_ct10 << " ";
-		fileA1p << A_upper_eps09 << " " << A_lower_eps09 << " " ;
-		fileA1p << A_upper_scales << " " << A_lower_scales << endl;	
+		fileA1p << ibin << " " << etaavg[bin(ibin)]<< " " << ok(A_vac) << " " << ok(A_upper_vac) << " " << ok(A_lower_vac) << " " << ok(A_ct10) << " " << ok(A_upper_ct10) << " " << ok(A_lower_ct10) << " ";
+		fileA1p << ok(A_upper_eps09) << " " << ok(A_lower_eps09) << " " ;
+		fileA1p << ok(A_upper_scales) << " " << ok(A_lower_scales) << endl;	
 
-		GetErr(A1m,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac);	
+		GetErr(A1m,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac,isnnpdf);	
 		GetErr(A1m,ibin,NSET_CT10,yields0nuc,yieldsp_ct10,yieldsm_ct10,A_ct10,A_upper_ct10,A_lower_ct10);	
 		GetErr(A1m,ibin,NSET_EPS09,yields0nuc,yieldsp_eps09,yieldsm_eps09,A_eps09,A_upper_eps09,A_lower_eps09);	
 		GetErr(A1m,ibin,NSET_SCALES,yields0,yieldsp_scales,yieldsm_scales,A_scales,A_upper_scales,A_lower_scales);	
-		fileA1m << ibin << " " << etaavg[bin(ibin)]<< " " << A_vac << " " << A_upper_vac << " " << A_lower_vac << " " << A_ct10 << " " << A_upper_ct10 << " " << A_lower_ct10 << " ";
-		fileA1m << A_upper_eps09 << " " << A_lower_eps09 << " " ;
-		fileA1m << A_upper_scales << " " << A_lower_scales << endl;	
+		fileA1m << ibin << " " << etaavg[bin(ibin)]<< " " << ok(A_vac) << " " << ok(A_upper_vac) << " " << ok(A_lower_vac) << " " << ok(A_ct10) << " " << ok(A_upper_ct10) << " " << ok(A_lower_ct10) << " ";
+		fileA1m << ok(A_upper_eps09) << " " << ok(A_lower_eps09) << " " ;
+		fileA1m << ok(A_upper_scales) << " " << ok(A_lower_scales) << endl;	
 
-		GetErr(A3,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac);	
+		GetErr(A3,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac,isnnpdf);	
 		GetErr(A3,ibin,NSET_CT10,yields0nuc,yieldsp_ct10,yieldsm_ct10,A_ct10,A_upper_ct10,A_lower_ct10);	
 		GetErr(A3,ibin,NSET_EPS09,yields0nuc,yieldsp_eps09,yieldsm_eps09,A_eps09,A_upper_eps09,A_lower_eps09);	
 		GetErr(A3,ibin,NSET_SCALES,yields0,yieldsp_scales,yieldsm_scales,A_scales,A_upper_scales,A_lower_scales);	
-		fileA3 << ibin << " " << etaavg[bin(ibin)]<< " " << A_vac << " " << A_upper_vac << " " << A_lower_vac << " " << A_ct10 << " " << A_upper_ct10 << " " << A_lower_ct10 << " ";
-		fileA3 << A_upper_eps09 << " " << A_lower_eps09 << " " ;
-		fileA3 << A_upper_scales << " " << A_lower_scales << endl;	
+		fileA3 << ibin << " " << etaavg[bin(ibin)]<< " " << ok(A_vac) << " " << ok(A_upper_vac) << " " << ok(A_lower_vac) << " " << ok(A_ct10) << " " << ok(A_upper_ct10) << " " << ok(A_lower_ct10) << " ";
+		fileA3 << ok(A_upper_eps09) << " " << ok(A_lower_eps09) << " " ;
+		fileA3 << ok(A_upper_scales) << " " << ok(A_lower_scales) << endl;	
 
-		GetErr(A4,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac);	
+		GetErr(A4,ibin,NSET_CT10,yields0vac,yieldsp_vac,yieldsm_vac,A_vac,A_upper_vac,A_lower_vac,isnnpdf);	
 		GetErr(A4,ibin,NSET_CT10,yields0nuc,yieldsp_ct10,yieldsm_ct10,A_ct10,A_upper_ct10,A_lower_ct10);	
 		GetErr(A4,ibin,NSET_EPS09,yields0nuc,yieldsp_eps09,yieldsm_eps09,A_eps09,A_upper_eps09,A_lower_eps09);	
 		GetErr(A4,ibin,NSET_SCALES,yields0,yieldsp_scales,yieldsm_scales,A_scales,A_upper_scales,A_lower_scales);	
-		fileA4 << ibin << " " << etaavg[bin(ibin)]<< " " << A_vac << " " << A_upper_vac << " " << A_lower_vac << " " << A_ct10 << " " << A_upper_ct10 << " " << A_lower_ct10 << " ";
-		fileA4 << A_upper_eps09 << " " << A_lower_eps09 << " " ;
-		fileA4 << A_upper_scales << " " << A_lower_scales << endl;	
+		fileA4 << ibin << " " << etaavg[bin(ibin)]<< " " << ok(A_vac) << " " << ok(A_upper_vac) << " " << ok(A_lower_vac) << " " << ok(A_ct10) << " " << ok(A_upper_ct10) << " " << ok(A_lower_ct10) << " ";
+		fileA4 << ok(A_upper_eps09) << " " << ok(A_lower_eps09) << " " ;
+		fileA4 << ok(A_upper_scales) << " " << ok(A_lower_scales) << endl;	
 	}   
 }
 
@@ -288,7 +294,7 @@ double xsecwm(double wp_fwd, double wp_bwd, double wm_fwd, double wm_bwd, double
 	return wm_fwd/LUMINOSITY;
 }
 
-void GetErr(double (*f)(double, double, double, double, double),int ibin, int nset, double *x0, double **xp, double **xm, double & x, double & xupper, double & xlower)
+void GetErr(double (*f)(double, double, double, double, double),int ibin, int nset, double *x0, double **xp, double **xm, double & x, double & xupper, double & xlower, bool nnpdf)
 {
 	int wp_fwd=bin(ibin);
 	int wp_bwd=bin(-ibin,"wplus");
@@ -296,16 +302,21 @@ void GetErr(double (*f)(double, double, double, double, double),int ibin, int ns
 	int wm_bwd=bin(-ibin,"wminus");
 	double dxpsq=0; double dxmsq=0;
 	x=(*f)(x0[wp_fwd],x0[wp_bwd],x0[wm_fwd],x0[wm_bwd],sigtot(x0));
+   vector<double> xvar;
    int cntp=0,cntm=0;
 	for (int iset=0;iset<nset;iset++)
 	{
 		double xplus=(*f)(xp[wp_fwd][iset],xp[wp_bwd][iset],xp[wm_fwd][iset],xp[wm_bwd][iset],sigtot(xp,iset));
 		double xminus=(*f)(xm[wp_fwd][iset],xm[wp_bwd][iset],xm[wm_fwd][iset],xm[wm_bwd][iset],sigtot(xm,iset));
-      // if (*f == CA) cout << iset << " " << x << " " << xminus << " " << xplus << endl;
+      xvar.push_back(xplus);
+      xvar.push_back(xminus);
       dxpsq+=pow(max(max(xplus-x,xminus-x),0.),2); // CTEQ eq.5
       dxmsq+=pow(max(max(x-xplus,x-xminus),0.),2); // CTEQ eq.5
-      // dxpsq+=0.25*pow(xplus-xminus,2); // Pia
-      // dxmsq+=0.25*pow(xplus-xminus,2); // Pia
+      if (symmetrized)
+      {
+         dxpsq+=0.25*pow(xplus-xminus,2); // Pia (= symmetrized)
+         dxmsq+=0.25*pow(xplus-xminus,2); // Pia (= symmetrized)
+      }
       if (max(max(xplus-x,xminus-x),0.)==0) cntp++;
       if (max(max(x-xplus,x-xminus),0.)==0) cntm++;
 	}
@@ -313,9 +324,17 @@ void GetErr(double (*f)(double, double, double, double, double),int ibin, int ns
 	// xupper=x+sqrt(dxpsq);
 	// xlower=x-sqrt(dxmsq);
 // gives the uncertainty and not the upper and lower yields
-	xupper=sqrt(dxpsq);
-	xlower=sqrt(dxmsq);
-   // cout << xupper << ", " << xlower << " with " << cntp << ", " << cntm << endl;
+   xupper=sqrt(dxpsq);
+   xlower=sqrt(dxmsq);
+
+   // NNPDF way
+   if (nnpdf)
+   {
+      double cl=0.9; int icl = (1.-cl)*xvar.size()/2.; // if the size is 100 and cl=90%, icl = 5
+      sort(xvar.begin(),xvar.end());                   // sort the vector of the 100 variations
+      xupper = fabs(x-xvar[icl]);                      // return the edges of the interval containing a fraction cl of the variations
+      xlower = fabs(x-xvar[xvar.size()-icl]);
+   }
 }
 
 // returns the total yields of W+ + W- (all bins)
@@ -355,4 +374,9 @@ int bin(int cmsbin,string wpm)
 	if(cmsbin<0)ibin=cmsbin+nbins/2;
 	if(wpm=="wminus")ibin+=nbins;
 	return ibin;
+}
+
+double ok(double arg)
+{
+   return isnormal(arg) ? arg : 0.;
 }
